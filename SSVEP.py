@@ -4,6 +4,7 @@
 
 from psychopy import visual, core, event
 import csv_collector
+import serial
 
 class SSVEP(object):
     #init sets the window(mywin), and the frequency of the flashing(frame_on, frame_off)
@@ -11,22 +12,20 @@ class SSVEP(object):
     #Thus the fastest frame rate could be 1 frame on 1 frame off
     #which equals 2/60 == 30Hz
     #Flash frequency = refreshrate/(frame_on+frame_off)
-    
-    def __init__(self, mywin= visual.Window([800, 600], fullscr=False, monitor='testMonitor',units='deg'),
+
+    def __init__(self, mywin= visual.Window([800, 600], fullscr=True, monitor='testMonitor',units='deg', color='black'),
                 frame_on=5, frame_off=5, trialdur = 5.0, port='/dev/ttyACM0',
-                fname='SSVEP.csv', numtrials=1, waitdur=2):
-        
+                fname='SSVEP.csv', numtrials=1, waitdur=2, usbtrig=False):
+
         self.mywin = mywin
-        self.pattern1 = visual.GratingStim(win=self.mywin, name='pattern1',units='cm', 
-                        tex=None, mask=None,
-                        ori=0, pos=[0, 0], size=10, sf=1, phase=0.0,
-                        color=[1,1,1], colorSpace='rgb', opacity=1, 
-                        texRes=256, interpolate=True, depth=-1.0)
-        self.pattern2 = visual.GratingStim(win=self.mywin, name='pattern2',units='cm', 
-                        tex=None, mask=None,
-                        ori=0, pos=[0, 0], size=10, sf=1, phase=0,
-                        color=[-1,-1,-1], colorSpace='rgb', opacity=1,
-                        texRes=256, interpolate=True, depth=-2.0)
+
+
+        A = visual.TextStim(win=self.mywin, name='pattern1', units='norm', text='A', height=1.7, color=[1,1,1], font='Helvetica', bold=True)
+        blank = visual.TextStim(win=self.mywin, name='pattern2', units='norm', text='', height=1.7, color=[1,1,1])
+
+        self.pattern1 = A
+        self.pattern2 = blank
+
         self.fixation = visual.GratingStim(win=self.mywin, size = 0.3, pos=[0,0], sf=0, rgb=-1)
         self.frame_on = frame_on
         self.frame_off = frame_off
@@ -35,6 +34,18 @@ class SSVEP(object):
         self.numtrials = numtrials
         self.waitdur = waitdur
         self.port = port
+
+        self.usbtrig = usbtrig
+        if self.usbtrig:
+            ser = serial.Serial()
+            ser.baudrate = 115200
+            ser.port = 'COM4'
+            ser.open()
+
+            self.ser = ser
+            self.code_stim = b'S'
+
+
 
     def collecting(self):
         self.collector = csv_collector.CSVCollector(fname=self.fname, port= self.port)
@@ -46,12 +57,12 @@ class SSVEP(object):
     def stop(self):
         self.mywin.close()
         core.quit()
-        
-   
+
+
     def start(self):
 
         ###Testing framerate grabber###
-        print self.mywin.getActualFrameRate()
+        print(self.mywin.getActualFrameRate())
         self.Trialclock = core.Clock()
         self.freq = 60/(self.frame_on+self.frame_off)
 
@@ -63,10 +74,10 @@ class SSVEP(object):
         #divison here makes it tricky
         self.trialframes = self.trialdur/60
         self.count = 0
-        
+
 
         while self.count<self.numtrials:
-            
+
             #reset tagging
             self.should_tag = False
             #self.epoch(0)
@@ -76,56 +87,60 @@ class SSVEP(object):
                 self.fixation.setAutoDraw(True)
                 self.pattern1.setAutoDraw(True)
 
-                """         
+                """
                 ###Tagging the data with the calculated frequency###
                 Attempting to only get 1 sample tagged, however, this is hard.
-                """         
+                """
                 """alternative way to tag
                 if self.should_tag == False:
                     #self.epoch(self.freq)
                     self.epoch(70)
                     self.mywin.flip()
-                
+
                 self.epoch(0)
                 self.should_tag = True
                 """
                 #self.epoch(70)
-               
+
+                # usb trigger
+                if self.usbtrig:
+                    self.ser.write(self.code_stim)
+
                 for frameN in range(self.frame_on):
                     self.mywin.flip()
-                
-                #another way to change color with 1 pattern 
-                #self.pattern1.color *= -1    
+
+                #another way to change color with 1 pattern
+                #self.pattern1.color *= -1
                 self.pattern1.setAutoDraw(False)
                 self.pattern2.setAutoDraw(True)
-                
-                
+
+
                 for frameN in range(self.frame_off):
                     self.mywin.flip()
                 self.pattern2.setAutoDraw(False)
-                
+
             #self.epoch(0)
             #clean black screen off
             self.mywin.flip()
             #wait certain time for next trial
             core.wait(self.waitdur)
             #reset clock for next trial
-            self.Trialclock.reset()    
+            self.Trialclock.reset()
             #count number of trials
             self.count+=1
-     
+
             """
             ###Tagging the Data at end of stimulus###
-            
-    """          
+
+    """
         #self.collector.disconnect()
         self.stop()
 
-            
 
-  
+
+
 """
-Here are some test cases 
+Here are some test cases
 Just run this program by itself if you don't want to use run.py
 
 """
@@ -139,8 +154,3 @@ if "__name__" == "__main__":
 
     stimuli20=SSVEP(frame_on=2, frame_off=1)
     stimuli20.start()
-
-   
-
-
-

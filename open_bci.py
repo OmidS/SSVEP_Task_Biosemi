@@ -199,7 +199,7 @@ class OpenBCIBoard(object):
                         # print data
                         return np.concatenate([[t_value], data])  # A list [sample_index, data1, data2, ... datan]
                     elif n_bytes > 0:
-                        print "Warning: Message length is the wrong size! %d should be %d" % (n_bytes, n_int_32 * 4)
+                        print("Warning: Message length is the wrong size! %d should be %d" % (n_bytes, n_int_32 * 4))
                         # Clear the buffer of those bytes.
                         _ = read(n_bytes)
                     else:
