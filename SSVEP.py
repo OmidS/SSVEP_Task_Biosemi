@@ -43,7 +43,8 @@ class SSVEP(object):
             ser.open()
 
             self.ser = ser
-            self.code_stim = b'S'
+            self.code_stim_on = b'S'
+            self.code_stim_off = b'T'
 
 
 
@@ -102,9 +103,9 @@ class SSVEP(object):
                 """
                 #self.epoch(70)
 
-                # usb trigger
+                # usb trigger (frame on)
                 if self.usbtrig:
-                    self.ser.write(self.code_stim)
+                    self.ser.write(self.code_stim_on)
 
                 for frameN in range(self.frame_on):
                     self.mywin.flip()
@@ -114,7 +115,9 @@ class SSVEP(object):
                 self.pattern1.setAutoDraw(False)
                 self.pattern2.setAutoDraw(True)
 
-
+                # usb trigger (frame off)
+                if self.usbtrig:
+                    self.ser.write(self.code_stim_off)
                 for frameN in range(self.frame_off):
                     self.mywin.flip()
                 self.pattern2.setAutoDraw(False)
@@ -134,7 +137,7 @@ class SSVEP(object):
 
     """
         #self.collector.disconnect()
-        self.stop()
+        #self.stop()
 
 
 
