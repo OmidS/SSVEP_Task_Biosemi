@@ -9,11 +9,6 @@ from SSVEP import *
 #from InputBox import InputBox
 import csv_collector
 
-
-
-
-
-
 # expinfos = InputBox()
 # filename = expinfos.file()
 # print expinfos.port_name()
@@ -25,23 +20,18 @@ import csv_collector
 # print port_addr
 # print type(port_addr)
 
+stim = SSVEP(frame_on=3, frame_off=3, numtrials=1, trialdur=30, usbtrig=True)
+for i in range(5):
+	# 30 seconds @ 10 Hz, no wait
+	stim.frame_on 	= 3
+	stim.frame_off 	= 3
+	stim.waitdur 	= 0 # post-trial wait time in seconds
+	stim.start()
 
-#set of stimuli followed by frequency of stimuli.
+	# 30 seconds @ 15 Hz, 10 second wait
+	stim.frame_on 	= 2
+	stim.frame_off 	= 2
+	stim.waitdur 	= 10 # post-trial wait time in seconds
+	stim.start()
 
-"""
-stimuli75 = SSVEP(frame_on=4, frame_off=4, fname=filename, port=port_addr, trialdur=flash_dur, numtrials=trialnums, waitdur=waitduration)
-stimuli75.start()
-print 1
-"""
-"""
-stimuli12=SSVEP(frame_on=3, frame_off=2, fname=filename, port=port_addr,
-	trialdur=flash_dur, numtrials=trialnums, waitdur=waitduration)
-stimuli12.start()
-print 2
-"""
-# stimuli20=SSVEP(frame_on=2, frame_off=1, fname=filename, port=port_addr,
-# 	trialdur=flash_dur, numtrials=trialnums, waitdur=waitduration)
-# stimuli20.start()
-
-stim = SSVEP(frame_on=10, frame_off=10, numtrials=1, trialdur=5, waitdur=5)
-stim.start()
+stim.stop()
