@@ -5,10 +5,10 @@
 
 Requirements:
 
-	Python 2.7
+	Python 3
 
 
-	Psychopy v1.88
+	Psychopy v3.1.4
 		download or install dependencies
 
 	OpenBCI Board v2
@@ -17,16 +17,13 @@ Requirements:
 To start:
 
 	in console:
-		python run.py
+		python run_ssvep.py
 
 	in Psychopy Coder:
-		open run.py
+		open run_ssvep.py
 		hit CTRL + r
 
 	Enter Participants Name and Session Number in GUI
 
 TODO:
 	Allow for Gui to select frequencies and number of stimuli.
-
-
-
