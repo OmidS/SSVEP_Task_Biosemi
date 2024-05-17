@@ -45,6 +45,8 @@ class SSVEP(object):
             self.ser = ser
             self.code_stim_on = b'S'
             self.code_stim_off = b'T'
+            self.code_trial_start = b'A'
+            self.code_trial_end = b'B'
 
 
 
@@ -76,6 +78,8 @@ class SSVEP(object):
         self.trialframes = self.trialdur/60
         self.count = 0
 
+        if self.usbtrig:
+            self.ser.write(self.code_trial_start)
 
         while self.count<self.numtrials:
 
@@ -136,6 +140,8 @@ class SSVEP(object):
             ###Tagging the Data at end of stimulus###
 
     """
+        if self.usbtrig:
+            self.ser.write(self.code_trial_end)
         #self.collector.disconnect()
         #self.stop()
 
